@@ -1,8 +1,9 @@
 extends Node2D
 
 
+export var max_helth = 100
 export var jump_power = 500
-export var gravity = 98
+export var gravity = 9.8
 export var speed = 100
 export var jump_max = 3
 export var jump_count = 0
@@ -16,16 +17,23 @@ enum KeyPress {
 
 onready var player = $KinematicBody2D
 onready var player_sprite = $KinematicBody2D/AnimatedSprite
+onready var helthy_bar = $KinematicBody2D/health
 
 
 func _process(delta):
 	vel.y += gravity
+
+	if helthy_bar.value >= max_helth:
+		helthy_bar.hide()
+	else:
+		helthy_bar.show()
 
 	if vel.y > 0 and not player.is_on_floor():
 		player_sprite.play("jump_down")
 	if vel.y < 0:
 		player_sprite.play("jump_up")
 	if player.is_on_floor():
+		helthy_bar.value += 5*delta
 		jump_count = 0
 		player_sprite.play("run")
 	if key_press(KeyPress.UP) and $ActionTimer.is_stopped():
@@ -40,6 +48,7 @@ func _jump(delta):
 		jump_count += 1
 		vel.y = -jump_power
 		$ActionTimer.start(action_timer)
+		helthy_bar.value -= 10
 
 func _fall(delta):
 	jump_count = jump_max
